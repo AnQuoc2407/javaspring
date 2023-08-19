@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tutorial CRUD</title>
+    <style>
+        /* Styles for modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 20% auto;
+            padding: 20px;
+            width: 60%;
+            border-radius: 5px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Tutorial CRUD</h2>
+
+<!-- Button to open the create modal -->
+<button onclick="openCreateModal()">Create Tutorial</button>
+
+<!-- Modal for creating a new tutorial -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCreateModal()">&times;</span>
+        <h3>Create New Tutorial</h3>
+        <form id="createForm">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required><br><br>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea><br><br>
+            <label for="published">Published:</label>
+            <input type="checkbox" id="published" name="published"><br><br>
+            <button type="submit">Create</button>
+        </form>
+    </div>
+</div>
+
+<table id="tutorialTable" border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Published</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    const tutorialTable = document.getElementById('tutorialTable').getElementsByTagName('tbody')[0];
+    const createModal = document.getElementById('createModal');
+
+    // Fetch and display all tutorials (similar to your previous code)
+    // ...
+
+    // Open the create modal
+    function openCreateModal() {
+        createModal.style.display = 'block';
+    }
+
+    // Close the create modal
+    function closeCreateModal() {
+        createModal.style.display = 'none';
+    }
+
+    // Handle form submission for creating a new tutorial
+    document.getElementById('createForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const published = document.getElementById('published').checked;
+
+        const newTutorial = {
+            title: title,
+            description: description,
+            published: published
+        };
+
+        // Send the new tutorial data to your API for creation
+        fetch('http://localhost:8080/api/tutorials', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newTutorial)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Tutorial created successfully.');
+            location.reload();
+        })
+        .catch(error => console.error('Error creating tutorial:', error));
+
+        closeCreateModal();
+    });
+    // const tutorialTable = document.getElementById('tutorialTable').getElementsByTagName('tbody')[0];
+
+    // Fetch and display all tutorials
+    fetch('http://localhost:8080/api/tutorials')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(tutorial => {
+                tutorialTable.innerHTML += `
+                    <tr>
+                        <td>${tutorial.id}</td>
+                        <td>${tutorial.title}</td>
+                        <td>${tutorial.description}</td>
+                        <td>${tutorial.published}</td>
+                        <td>
+                            <button onclick="editTutorial(${tutorial.id})">Edit</button>
+                            <button onclick="deleteTutorial(${tutorial.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(error => console.error('Error fetching tutorials:', error));
+
+    // Function to delete a tutorial
+    function deleteTutorial(id) {
+        fetch(`http://localhost:8080/api/tutorials/${id}`, {
+            method: 'DELETE'
+        })
+        .then(() => {
+            alert('Tutorial deleted successfully.');
+            location.reload();
+        })
+        .catch(error => console.error('Error deleting tutorial:', error));
+    }
+
+    // Function to edit a tutorial
+    function editTutorial(id) {
+        // Implement edit functionality here
+        // You can redirect to an edit page or show a modal dialog
+        alert('Edit tutorial with ID ' + id);
+    }
+</script>
+
+</body>
+</html>
